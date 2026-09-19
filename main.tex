@@ -1,0 +1,665 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{iftex}
+\ifXeTeX
+  \usepackage{fontspec}
+  \usepackage[vietnamese]{babel}
+  \setmainfont{Times New Roman}
+\else\ifLuaTeX
+  \usepackage{fontspec}
+  \usepackage[vietnamese]{babel}
+  \setmainfont{Times New Roman}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[utf8]{vietnam}
+  \usepackage[T1]{fontenc}
+\fi\fi
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}   
+\usepackage{setspace}          
+\usepackage{titlesec}              
+\usepackage{hyperref}            
+\usepackage{tikz}                  
+\usetikzlibrary{shapes,arrows,positioning,shapes.geometric,arrows.meta}
+\usepackage{fancyhdr}            
+\usepackage{enumitem}              
+\usepackage{booktabs}           
+\usepackage[x11names]{xcolor}
+\usepackage[framemethod=TikZ]{mdframed} 
+
+\mdfdefinestyle{theoremstyle}{
+    linecolor=blue!70!black,
+    linewidth=1pt,
+    roundcorner=4pt,
+    backgroundcolor=blue!5!white,
+    innerleftmargin=10pt,
+    innerrightmargin=10pt,
+    innertopmargin=8pt,
+    innerbottommargin=8pt,
+    skipabove=10pt,
+    skipbelow=10pt
+}
+
+\newenvironment{mytheorem}[1][]
+  {\begin{mdframed}[style=theoremstyle]\noindent\ifx&#1&#\else\textbf{#1}\ \fi\ignorespaces}
+  {\end{mdframed}}
+
+\AtBeginDocument{
+  \renewcommand{\proofname}{\textbf{Chứng minh:}}}
+
+\geometry{a4paper,top=3.0cm,bottom=3.0cm,left=3.5cm,right=2.0cm}
+
+\onehalfspacing                   
+\setlength{\parskip}{6pt}           
+\setlength{\parindent}{1cm}         
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Ứng dụng Nguyên lý Dirichlet trong Thực tiễn},
+    pdfpagemode=FullScreen
+}
+
+\newtheorem{theorem}{Định lý}[section]
+\newtheorem{lemma}[theorem]{Bổ đề}
+\theoremstyle{definition}
+\newtheorem{definition}{Định nghĩa}[section]
+\newtheorem{example}{Bài toán thực tế}
+\newtheorem{remark}{Nhận xét}[section]
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{blue!80!black}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{blue!60!black}}{\thesubsection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\scriptsize Nguyên lý Dirichlet \& Một số ứng dụng trong thực tiễn}
+\lhead{\scriptsize TRƯỜNG ĐẠI HỌC SƯ PHẠM - ĐẠI HỌC HUẾ}
+\cfoot{\thepage}
+
+\begin{document}
+
+% =========================================================
+% TRANG BÌA
+% =========================================================
+\begin{titlepage}
+    \begin{center}
+        \large \textbf{BỘ GIÁO DỤC VÀ ĐÀO TẠO} \\[0.2cm]
+        \textbf{\Large TRƯỜNG ĐẠI HỌC SƯ PHẠM - ĐẠI HỌC HUẾ} \\[0.4cm]
+        
+        \rule{0.35\textwidth}{0.4pt} \hspace{0.2cm} \raisebox{-0.6ex}{\large$\diamondsuit$} \hspace{0.2cm} \rule{0.35\textwidth}{0.4pt} \\[3.5cm]
+        
+        {\color{blue!80!black} \huge \textbf{NGUYÊN LÍ DIRICHLET}} \\[0.6cm]
+        {\color{blue!80!black} \Large \textbf{VÀ MỘT SỐ ỨNG DỤNG TRONG THỰC TIỄN}} \\[4.0cm]
+        
+        \begin{table}[h!]
+            \centering
+            \large
+            \begin{tabular}{lll}
+                \textbf{GIẢNG VIÊN}          & \textbf{:} & \textbf{NGUYỄN ĐĂNG MINH PHÚC} \\[0.4cm]
+                \textbf{HỌ VÀ TÊN SINH VIÊN} & \textbf{:} & \textbf{TRẦN NGUYỄN UYÊN THI} \\[0.4cm]
+                \textbf{MÃ SINH VIÊN}        & \textbf{:} & \textbf{23S1010043} \\
+            \end{tabular}
+        \end{table}
+        
+        \vfill
+        
+        \large Ngày 17 tháng 9 năm 2026
+    \end{center}
+\end{titlepage}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section*{A. GIỚI THIỆU CHUNG}
+\addcontentsline{toc}{section}{A. GIỚI THIỆU CHUNG}
+
+\subsection*{1. Lý do chọn đề tài}
+\addcontentsline{toc}{subsection}{1. Lý do chọn đề tài}
+Nhà toán học người Đức Johann Peter Gustav Lejeune Dirichlet (1805 -- 1859) --- người đưa ra định nghĩa hiện đại về hàm số --- đã phát biểu một quy luật thực tế rất đơn giản nhưng quan trọng: \textbf{Nguyên lý Dirichlet} (hay còn gọi là Nguyên lý Lồng chim / Chuồng thỏ -- \textit{Pigeonhole Principle}). Phát biểu tổng quát cho thấy: nếu nhốt $n$ con thỏ vào $k$ cái chuồng ($n > k$), chắc chắn sẽ có ít nhất một chuồng chứa từ $\left\lceil \frac{n}{k} \right\rceil$ con thỏ trở lên. Bằng phương pháp chứng minh phản chứng ngắn gọn và chặt chẽ, nguyên lý này giúp chúng ta khẳng định một điều chắc chắn sẽ xảy ra mà không cần phải đi tìm vị trí cụ thể của nó.
+
+Dưới góc nhìn toán học, điểm hay nhất của nguyên lý này nằm ở kỹ năng chọn ``Chuồng'' và ``Thỏ'' --- tức là cách chúng ta quy đổi một bài toán thực tế phức tạp về dạng phân loại đối tượng vào các nhóm giới hạn. Ngày nay, tư duy này trở thành công cụ rất mạnh để giải quyết các bài toán thực tế như: phát hiện trùng lặp dữ liệu trong an ninh mạng, tối ưu hóa bộ nhớ máy tính hay phân luồng giao thông chống ùn tắc.
+
+Muốn kết nối lý thuyết toán học với đời sống, em chọn đề tài \textbf{``Nguyên Lý Dirichlet \& Một Số Ứng Dụng Trong Thực Tiễn''} để làm rõ cơ sở toán học, cách phân tích ``Chuồng -- Thỏ'' và chứng minh nguyên lý đơn giản này có thể giải quyết nhiều bài toán thực tế hiệu quả như thế nào.
+
+\subsection*{2. Mục đích và nhiệm vụ nghiên cứu}
+\addcontentsline{toc}{subsection}{2. Mục đích và nhiệm vụ nghiên cứu}
+
+\noindent\textbf{Mục đích:} Khai thác và làm sáng tỏ giá trị thực tiễn của Nguyên lý Dirichlet, chuyển hóa một định lý toán học thuần túy thành các mô hình giải quyết bài toán thực tế.
+
+\vspace{0.2cm}
+\noindent\textbf{Nhiệm vụ:}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Hệ thống hóa các phát biểu toán học từ dạng cơ bản, mở rộng đến dạng xác suất của Nguyên lý Dirichlet.
+    \item Phân tích và mô hình hóa các ứng dụng của nguyên lý trong Công nghệ thông tin, Giao thông đô thị, Logistics và Sinh học.
+    \item Xây dựng và giải quyết các bài toán thực tế minh họa điển hình.
+\end{itemize}
+
+\subsection*{3. Đối tượng và phạm vi nghiên cứu}
+\addcontentsline{toc}{subsection}{3. Đối tượng và phạm vi nghiên cứu}
+
+\textbf{Đối tượng nghiên cứu:} Cơ sở lý luận của Nguyên lý Dirichlet --- bao gồm các hệ dạng phát biểu từ cơ bản, tổng quát, mở rộng, dạng tập hợp đến hình học liên tục --- cùng quy trình mô hình hóa toán học thiết lập ánh xạ phân loại (``Thỏ'' và ``Chuồng'') ứng dụng trong giải quyết bài toán thực thực tiễn.
+        
+\noindent\textbf{Phạm vi nghiên cứu:}
+    \begin{itemize}[leftmargin=1.5cm, nosep, topsep=2pt]     
+        \item \textit{Về mặt nội dung:} Tóm lược và phân tích ứng dụng của nguyên lý trong các lĩnh vực trọng yếu bao gồm: An ninh mạng \& Khoa học máy tính (va chạm mã băm, giới hạn nén dữ liệu không mất thông tin, điểm mù mã kiểm tra lỗi); Y sinh (định danh và phát hiện đoạn lặp chuỗi DNA); Quy hoạch hạ tầng (cân bằng tải hệ thống máy chủ, tối ưu mật độ lưu lượng giao thông); và Lý thuyết đồ thị ứng dụng trong phân tích mạng xã hội.
+            
+        \item \textit{Về mặt ứng dụng thực hành:} Giới hạn trong việc xây dựng, mô hình hóa và thực thi lời giải cho các dạng bài toán phân bổ tài nguyên, đánh giá ngưỡng chịu tải và dự báo điểm bùng phát hệ thống.
+        \end{itemize}
+\end{itemize}
+
+\newpage
+
+\section*{B. CƠ SỞ LÝ THUYẾT VỀ NGUYÊN LÝ DIRICHLET}
+\addcontentsline{toc}{section}{B. CƠ SỞ LÝ THUYẾT VỀ NGUYÊN LÝ DIRICHLET}
+
+\subsection*{1. Một số dạng phát biểu của nguyên lý Dirichlet}
+\addcontentsline{toc}{subsection}{1. Một số dạng phát biểu của nguyên lý Dirichlet}
+
+\subsubsection*{1.1. Nguyên lý Dirichlet cơ bản}
+\addcontentsline{toc}{subsubsection}{1.1. Nguyên lý Dirichlet cơ bản}
+
+\begin{mytheorem}
+Nếu nhốt $n+1$ con thỏ vào $n$ cái chuồng thì bao giờ cũng có một chuồng chứa ít nhất hai con thỏ.
+\end{mytheorem}
+
+\begin{proof}
+Giả sử ngược lại, không có chuồng nào chứa từ $2$ con thỏ trở lên. Điều này có nghĩa là mỗi chuồng chỉ chứa tối đa $1$ con thỏ.
+
+\noindent Khi đó, tổng số thỏ ở cả $n$ chuồng sẽ tối đa là:
+\[
+1 + 1 + \dots + 1 \quad (n \text{ chuồng}) = n \times 1 = n \quad (\text{con thỏ})
+\]
+Điều này mâu thuẫn với giả thiết ban đầu là có tổng cộng $n+1$ con thỏ.
+
+\noindent Vậy tồn tại ít nhất 1 chuồng chứa từ 2 con thỏ trở lên.
+\end{proof}
+
+\subsubsection*{1.2. Nguyên lý Dirichlet tổng quát}
+\addcontentsline{toc}{subsubsection}{1.2. Nguyên lý Dirichlet tổng quát}
+
+\begin{mytheorem}
+Nếu có $n$ đồ vật được đặt vào trong $k$ hộp thì sẽ tồn tại một hộp chứa ít nhất $\left\lceil \frac{n}{k} \right\rceil$ đồ vật. (Ký hiệu $\lceil x \rceil$ là số nguyên nhỏ nhất có giá trị lớn hơn hoặc bằng $x$).
+\end{mytheorem}
+
+\begin{proof}
+Đặt $m = \left\lceil \frac{n}{k} \right\rceil$. Ta cần chứng minh tồn tại 1 hộp chứa ít nhất $m$ đồ vật.
+
+\noindent Giả sử ngược lại, mọi hộp đều chứa ít hơn $m$ đồ vật. Vì số đồ vật trong hộp là số nguyên, nên mỗi hộp chứa tối đa $m-1$ đồ vật.
+
+\noindent Tổng số đồ vật trong $k$ hộp khi đó thỏa mãn:
+\[
+\text{Tổng số đồ vật} \le k \times (m - 1)
+\]
+Theo định nghĩa của hàm trần $\left\lceil \frac{n}{k} \right\rceil$, ta luôn có:
+\[
+m - 1 < \frac{n}{k} \implies k \times (m - 1) < n
+\]
+Do đó:
+\[
+\text{Tổng số đồ vật} < n
+\]
+Điều này mâu thuẫn với thực tế là ta có $n$ đồ vật. Vậy tồn tại ít nhất 1 hộp chứa không ít hơn $\left\lceil \frac{n}{k} \right\rceil$ đồ vật.
+\end{proof}
+
+\subsubsection*{1.3. Nguyên lý Dirichlet mở rộng}
+\addcontentsline{toc}{subsubsection}{1.3. Nguyên lý Dirichlet mở rộng}
+
+\begin{mytheorem}
+Nếu nhốt $n$ con thỏ vào $m \ge 2$ cái chuồng thì tồn tại một chuồng có ít nhất $\left\lfloor \frac{n + m - 1}{m} \right\rfloor$ con thỏ (Ký hiệu $\lfloor x \rfloor$ là hàm sàn/phần nguyên, đại diện cho số nguyên lớn nhất nhỏ hơn hoặc bằng $x$).
+\end{mytheorem}
+
+\begin{proof}
+Đặt $k = \left\lfloor \frac{n + m - 1}{m} \right\rfloor$. Ta cần chứng minh tồn tại ít nhất 1 chuồng chứa $\ge k$ con thỏ.
+
+\noindent Giả sử không có chuồng nào chứa từ $k$ con thỏ trở lên. Nghĩa là mỗi chuồng trong số $m$ cái chuồng chỉ chứa tối đa $k-1$ con thỏ. Khi đó, tổng số thỏ ở cả $m$ chuồng thỏa mãn bất đẳng thức:
+\[
+\text{Tổng số thỏ} \le m \times (k - 1)
+\]
+Theo định nghĩa của phần nguyên $\lfloor x \rfloor$, ta luôn có bất đẳng thức $x - 1 < \lfloor x \rfloor \le x$. Áp dụng cho $k = \left\lfloor \frac{n + m - 1}{m} \right\rfloor$:
+\[
+k \le \frac{n + m - 1}{m} \implies k - 1 \le \frac{n + m - 1}{m} - 1 = \frac{n - 1}{m} \implies k - 1 \le \left\lfloor \frac{n - 1}{m} \right\rfloor
+\]
+Nhân cả hai vế với $m > 0$:
+\[
+m \times (k - 1) \le n - 1
+\]
+Từ đó suy ra:
+\[
+\text{Tổng số thỏ} \le n - 1 < n
+\]
+Điều này mâu thuẫn với giả thiết ban đầu là có tổng cộng $n$ con thỏ.
+
+\noindent Vậy tồn tại ít nhất một chuồng chứa từ $\left\lfloor \frac{n + m - 1}{m} \right\rfloor$ con thỏ trở lên.
+\end{proof}
+
+\subsubsection*{1.4. Nguyên lý Dirichlet dạng tập hợp}
+\addcontentsline{toc}{subsubsection}{1.4. Nguyên lý Dirichlet dạng tập hợp}
+
+\begin{mytheorem}
+Cho $A$ và $B$ là hai tập hợp hữu hạn khác rỗng sao cho $|A| > |B|$. Nếu có một ánh xạ $f: A \to B$, thì luôn tồn tại ít nhất hai phần tử $x_1, x_2 \in A$ ($x_1 \neq x_2$) sao cho $f(x_1) = f(x_2)$.
+\end{mytheorem}
+
+\begin{proof}
+Giả thiết: $|A| = m, |B| = n$ với $m > n \ge 1$.
+
+\noindent Giả sử $f$ là một đơn ánh. Ta có với mọi $x_1, x_2 \in A$, nếu $x_1 \neq x_2$ thì $f(x_1) \neq f(x_2)$. Điều này có nghĩa là mỗi phần tử khác nhau của $A$ sẽ được ánh xạ tới một phần tử hoàn toàn riêng biệt trong $B$.
+
+\noindent Do đó, số lượng phần tử của tập ảnh $f(A) \subseteq B$ phải bằng đúng số phần tử của $A$:
+\[
+|f(A)| = |A| = m
+\]
+Mặt khác, vì $f(A)$ là tập con của $B$, nên số phần tử của $f(A)$ không thể vượt quá số phần tử của $B$:
+\[
+|f(A)| \le |B| = n
+\]
+Từ hai điều trên suy ra: $m \le n$. Điều này mâu thuẫn trực tiếp với giả thiết $|A| > |B|$ (tức $m > n$).
+
+\noindent Vậy $f$ không thể là đơn ánh, tức là tồn tại $x_1 \neq x_2 \in A$ sao cho $f(x_1) = f(x_2)$.
+\end{proof}
+
+\subsubsection*{1.5. Nguyên lý Dirichlet trong hình học liên tục}
+\addcontentsline{toc}{subsubsection}{1.5. Nguyên lý Dirichlet trong hình học liên tục}
+
+\begin{mytheorem}
+Nếu một miền không gian $D$ có độ đo (độ dài, diện tích hoặc thể tích) bằng $V$ được phân chia thành $k$ vùng nhỏ $D_1, D_2, \dots, D_k$, thì khi chọn bất kỳ $n$ điểm ($n > k$) nằm trong miền $D$, luôn tồn tại ít nhất một vùng nhỏ $D_i$ chứa từ $\left\lceil \frac{n}{k} \right\rceil$ điểm trở lên. 
+
+\noindent Đặc biệt, nếu chia miền $D$ thành $k$ vùng nhỏ mà mỗi vùng có đường kính (khoảng cách lớn nhất giữa hai điểm bất kỳ) không vượt quá $d$, thì trong $k+1$ điểm bất kỳ thuộc $D$, luôn tồn tại ít nhất 2 điểm có khoảng cách không vượt quá $d$.
+\end{mytheorem}
+
+\begin{proof}
+Giả sử không có vùng nhỏ nào trong $k$ vùng chứa từ $\left\lceil \frac{n}{k} \right\rceil$ điểm trở lên.
+
+\noindent Vì số điểm trong mỗi vùng phải là số nguyên, nên mỗi vùng $D_i$ ($i = 1, 2, \dots, k$) chỉ chứa tối đa $\left\lceil \frac{n}{k} \right\rceil - 1$ điểm. Khi đó, tổng số điểm nằm trong cả $k$ vùng nhỏ thỏa mãn:
+\[
+\text{Tổng số điểm} \le k \times \left( \left\lceil \frac{n}{k} \right\rceil - 1 \right)
+\]
+Áp dụng bất đẳng thức của hàm trần $\left\lceil x \right\rceil < x + 1$, ta có:
+\[
+\left\lceil \frac{n}{k} \right\rceil - 1 < \frac{n}{k}
+\]
+Nhân cả hai vế với $k > 0$, suy ra:
+\[
+\text{Tổng số điểm} < k \times \frac{n}{k} = n
+\]
+Điều này mâu thuẫn với giả thiết ban đầu là ta có đúng $n$ điểm được đặt vào miền $D$.
+
+\noindent Vậy tồn tại ít nhất một vùng $D_i$ chứa không ít hơn $\left\lceil \frac{n}{k} \right\rceil$ điểm. Đặc biệt, khi $n = k+1$, chắc chắn có ít nhất 1 vùng chứa từ $\left\lceil \frac{k+1}{k} \right\rceil = 2$ điểm trở lên, dẫn đến khoảng cách giữa 2 điểm này không vượt quá đường kính $d$ của vùng đó.
+\end{proof}
+
+\subsection*{2. Mô hình hóa Toán học (``Thỏ'' và ``Chuồng'')}
+\addcontentsline{toc}{subsection}{2. Mô hình hóa Toán học (``Thỏ'' và ``Chuồng'')}
+
+\begin{enumerate}[label=\textbf{Bước \arabic*:}, leftmargin=1.5cm, itemsep=2pt, topsep=4pt]
+    \item \textbf{Xác định tập ``Thỏ'' (Tập đối tượng - $S$)}: Là tập hợp các đối tượng, dữ liệu đầu vào hoặc đại lượng biến thiên mà chúng ta muốn khảo sát sự lặp lại/trùng lặp (người dùng, tệp dữ liệu, giao dịch, đoạn mã DNA,...). Ký hiệu số lượng phần tử là $|S|$.
+    
+    \item \textbf{Xác định tập ``Chuồng'' (Tập phân loại - $T$)}: Là tập hợp các trạng thái, nhóm phân loại, giá trị giới hạn hoặc vùng không gian/thời gian mà các ``Thỏ'' có thể rơi vào (khung giờ, dãy mã băm, làn xe, phân vùng bộ nhớ,...). Ký hiệu số lượng phần tử là $|T|$.
+    
+    \item \textbf{Thiết lập Ánh xạ và Đánh giá điều kiện}: Xây dựng quy tắc phân loại $f: S \to T$. Đảm bảo điều kiện bắt buộc:
+    \begin{enumerate}[label=\arabic*., leftmargin=0.8cm, itemsep=1pt, topsep=2pt]
+        \item Số ``Thỏ'' phải nhiều hơn số ``Chuồng'' ($|S| > |T|$).
+        \item Tất cả ``Thỏ'' phải được phân chia hết vào các ``Chuồng''.
+    \end{enumerate}
+\end{enumerate}
+\noindent Thường thì phương pháp Dirichlet được áp dụng kèm theo phương pháp phản chứng. 
+\vspace{0.3cm}
+
+% SƠ ĐỒ KHUNG XÁM MÔ HÌNH HÓA ĐÚNG CHUẨN MẪU ĐỀ NGHỊ
+\begin{figure}[h!]
+    \centering
+    \begin{mdframed}[
+        backgroundcolor=gray!10,
+        linecolor=black,
+        linewidth=0.8pt,
+        innerleftmargin=10pt,
+        innerrightmargin=10pt,
+        innertopmargin=10pt,
+        innerbottommargin=12pt
+    ]
+        \centering
+        \textbf{\large SƠ ĐỒ MÔ HÌNH HÓA QUY TRÌNH ÁP DỤNG NGUYÊN LÝ DIRICHLET} \\[0.5cm]
+        
+        \begin{tikzpicture}[
+            node distance=0.8cm and 0cm,
+            every node/.style={font=\large, align=center},
+            arrow/.style={-{Stealth[length=2mm]}, thick}
+        ]
+            \node (node1) {Bài toán thực tế};
+            \node (node2) [below=of node1] {Xác định Tập $S$ (Thỏ: $|S| = N$)};
+            \node (node3) [below=of node2] {Xác định Tập $T$ (Lồng: $|T| = K$)};
+            \node (node4) [below=of node3] {Xây dựng Ánh xạ $f: S \to T$ với $N > K$};
+            \node (node5) [below=of node4] {Kết luận tồn tại trùng lặp};
+
+            \draw [arrow] (node1) -- (node2);
+            \draw [arrow] (node2) -- (node3);
+            \draw [arrow] (node3) -- (node4);
+            \draw [arrow] (node4) -- (node5);
+        \end{tikzpicture}
+    \end{mdframed}
+\end{figure}
+
+\newpage
+
+\section*{C. CÁC ỨNG DỤNG THỰC TẾ CỦA NGUYÊN LÝ DIRICHLET}
+\addcontentsline{toc}{section}{C. CÁC ỨNG DỤNG THỰC TẾ CỦA NGUYÊN LÝ DIRICHLET}
+
+\subsection*{1. Khoa học Máy tính \& An ninh mạng}
+\addcontentsline{toc}{subsection}{1. Khoa học Máy tính \& An ninh mạng}
+
+\subsubsection*{1.1. Va chạm mã băm (Hash Collisions)}
+\addcontentsline{toc}{subsubsection}{1.1. Va chạm mã băm (Hash Collisions)}
+Mã băm giống như việc cấp ``Mã căn cước'' cho file. File dài cỡ nào thì qua hàm băm cũng trả về 1 chuỗi ký tự độ dài cố định.
+
+\noindent Xét một hàm băm $h: X \to Y$, trong đó:
+\begin{itemize}
+    \item $D = \{0,1\}^* = \bigcup_{k=0}^{\infty} \{0,1\}^k$ là tập miền xác định chứa toàn bộ các chuỗi nhị phân có độ dài tùy ý, do đó cardinality của tập này là vô hạn: $|D| = \aleph_0$.
+    \item $R = \{0,1\}^n$ là tập miền giá trị chứa các chuỗi nhị phân cố định $n$-bits, có cardinality hữu hạn: $|R| = 2^n$.
+\end{itemize}
+
+\noindent Vì $|D| > |R|$ (cụ thể $\aleph_0 > 2^n$), theo Nguyên lý Dirichlet, $h$ không thể là một đơn ánh. Do đó, tồn tại ít nhất một cặp thông điệp $m_1, m_2 \in D$ ($m_1 \neq m_2$) sao cho:
+\[h(m_1) = h(m_2)\]
+
+\noindent Sự tồn tại của cặp (m_1, m_2)$ mô tả toán học cho hiện tượng ``Va chạm mã băm''. Trong Mật mã học ứng dụng, mục tiêu thiết kế không phải là loại bỏ va chạm toán học $\exists (m_1, m_2)$, mà là đảm bảo thuộc tính Kháng va chạm mạnh (Strong Collision Resistance) với chi phí tính toán để tìm ra cặp (m_1, m_2)$ đạt ngưỡng: 
+\[\text{Time Complexity} \approx \Omega(2^{n/2})\] (Birthday Attack Bound).
+
+\noindent Sự chênh lệch giữa thuộc tính tồn tại toán học $\exists (m_1, m_2)$ và độ khó tính toán thực tế $T_{\text{calc}} \gg T_{\text{life}}$ chính là cơ sở lý thuyết vững chắc để xây dựng các thuật toán chữ ký số $S = \text{Sign}_{sk}(H(m))$ và cơ chế kiểm tra toàn vẹn dữ liệu $\text{Verify}(m, H(m))$ an toàn. Các kỹ sư dựa vào đây để thiết kế hệ thống chống giả mạo chữ ký số và xác thực dữ liệu an toàn.
+
+\subsubsection*{1.2. Nén dữ liệu không mất thông tin (Lossless Data Compression)}
+\addcontentsline{toc}{subsubsection}{1.2. Nén dữ liệu không mất thông tin (Lossless Data Compression)}
+Gọi $\Sigma^*$ là tập hợp tất cả các tệp dữ liệu biểu diễn dưới dạng chuỗi nhị phân. Xét một thuật toán nén $C: \Sigma^N \to \Sigma^{\le N-1}$ với $\Sigma^k = \{0,1\}^k$, trong đó $N$ là độ dài tệp gốc (bit).
+
+\noindent Số lượng tệp đầu vào có độ dài chính xác $N$ bit:
+\[
+|\text{Domain}| = |\Sigma^N| = 2^N
+\]
+Số lượng tệp đầu ra có độ dài nhỏ hơn $N$ bit:
+\[
+|\text{Codomain}| = \sum_{k=0}^{N-1} |\Sigma^k| = \sum_{k=0}^{N-1} 2^k = 2^N - 1
+\]
+Vì $|\text{Domain}| = 2^N > 2^N - 1 = |\text{Codomain}|$, theo Nguyên lý Dirichlet, hàm $C$ không thể là một đơn ánh. Do đó, tồn tại $f_1 \neq f_2 \in \Sigma^N$ sao cho:
+\[
+C(f_1) = C(f_2)
+\]
+Điều này chứng minh rằng không thể tồn tại một thuật toán nén không mất dữ liệu nào có khả năng thu nhỏ mọi tệp tin đầu vào. Nếu một thuật toán có thể nén một số tệp tin nhỏ lại, bắt buộc nó phải làm cho một số tệp tin khác phình to ra để đảm bảo tính duy nhất khi giải nén ($C^{-1}$).
+
+\subsubsection*{1.3. Mã kiểm tra \& Mã sửa lỗi (Checksum \& Error-Correcting Codes)}
+\addcontentsline{toc}{subsubsection}{1.3. Mã kiểm tra \& Mã sửa lỗi (Checksum \& Error-Correcting Codes)}
+Trong truyền tải dữ liệu và lưu trữ thông tin, các kỹ thuật như Bit kiểm tra chẵn lẻ (Parity bit), Mã kiểm tra thặng dư chu kỳ (CRC - Cyclic Redundancy Check) hay Checksum được sử dụng rộng rãi để phát hiện lỗi đường truyền[cite: 16]. Về bản chất, các kỹ thuật này gắn thêm một chuỗi bit kiểm tra có độ dài cố định $m$ bit vào sau gói tin gốc có độ dài $n$ bit (với $n > m$).
+
+\noindent Xét một hàm kiểm tra lỗi $f: S \to T$, trong đó:
+\begin{itemize}[leftmargin=1.2cm, itemsep=3pt, topsep=2pt]
+    \item Tập miền xác định (Thỏ): $S = \{0,1\}^n \setminus \{x_0\}$ là tập hợp tất cả các dạng biến đổi dữ liệu bị lỗi có thể xảy ra đối với gói tin gốc $x_0$ trong quá trình truyền tải[cite: 17]. Số lượng trạng thái dữ liệu có thể bị lỗi là:
+    \[
+    |\text{Domain}| = |S| = 2^n - 1
+    \]
+    \item Tập miền giá trị (Chuồng): $T = \{0,1\}^m$ là tập hợp tất cả các chuỗi mã kiểm tra (Checksum/CRC) có độ dài cố định $m$ bit[cite: 17]. Số lượng giá trị mã kiểm tra khả dĩ là:
+    \[
+    |\text{Codomain}| = |T| = 2^m
+    \]
+\end{itemize}
+
+\noindent Do $n > m \implies 2^n - 1 > 2^m$, tức $|\text{Domain}| > |\text{Codomain}|$. Theo Nguyên lý Dirichlet, hàm kiểm tra $f$ không thể là một đơn ánh[cite: 17]. Do đó, tồn tại ít nhất hai trạng thái dữ liệu lỗi hoàn toàn khác nhau $e_1, e_2 \in S$ với $e_1 \neq e_2$ sao cho:
+\[
+f(e_1) = f(e_2)
+\]
+
+\noindent Kết quả toán học này chứng minh rằng mọi mã kiểm tra độ dài cố định chắc chắn đều tồn tại "điểm mù" (undetectable errors)[cite: 17]. Nghĩa là luôn tồn tại các tập dữ liệu bị nhiễu hoặc biến dạng hoàn toàn khác nhau nhưng lại cho ra cùng một giá trị Checksum/CRC, khiến hệ thống nhận dạng nhầm rằng dữ liệu vẫn toàn vẹn[cite: 17]. Nhận thức được giới hạn này, các kỹ sư mạng bắt buộc phải lựa chọn độ dài bit kiểm tra $m$ đủ lớn (như chuyển từ CRC-16 lên CRC-32 hay CRC-64) để giảm xác suất xảy ra đụng độ "điểm mù" xuống mức an toàn trong thực tế.
+
+\subsection*{2. Phân tích Gen \& Y sinh (Đoạn lặp DNA)}
+\addcontentsline{toc}{subsection}{2. Phân tích Gen \& Y sinh (Đoạn lặp DNA)}
+Xét chuỗi gen $S \in \Sigma^N$ trên bảng chữ cái $\Sigma = \{A, T, G, C\}$ với $|\Sigma| = 4$. Một $k$-mer là đoạn con $S[i \dots i + k - 1]$.
+
+\noindent Tập vị trí khởi tạo $k$-mer trong $S$:
+\[
+A = \{1, 2, \dots, N - k + 1\} \implies |A| = N - k + 1
+\]
+
+\noindent Tập không gian trạng thái của tất cả $k$-mer lý thuyết:
+\[
+B = \Sigma^k \implies |B| = 4^k
+\]
+
+\noindent Trong một đoạn gen có độ dài $N$ ($N > 4^k + k - 1$), số lượng chuỗi con độ dài $k$ xuất hiện là $N - k + 1 > 4^k$ (tập "Thỏ").
+
+\noindent Để đảm bảo chắc chắn xuất hiện ít nhất một chuỗi lặp lại trùng nhau $g(i) = g(j)$ với $i \neq j$, độ dài $N$ của đoạn gen phải thỏa mãn bất phương trình:
+\[
+N - k + 1 > 4^k \iff N \ge 4^k + k
+\]
+
+\noindent Việc phát hiện các mẫu lặp lại bắt buộc này là nền tảng để các nhà sinh học phát hiện đột biến gen và định danh loài. Các bác sĩ dùng điều này để phát hiện bệnh di truyền. Ví dụ: Bệnh Huntington xảy ra khi cụm $CAG$ bị lặp lại quá nhiều lần so với mức bình thường.
+
+\subsection*{3. Quy hoạch Hạ tầng \& Cân bằng tải}
+\addcontentsline{toc}{subsection}{3. Quy hoạch Hạ tầng \& Cân bằng tải}
+
+\subsubsection*{3.1. Cân bằng tải Máy chủ (Server Load Balancing)}
+\addcontentsline{toc}{subsubsection}{3.1. Cân bằng tải Máy chủ (Server Load Balancing)}
+Xét mô hình phân phối tải trong không gian thời gian gián đoạn. Giả sử hệ thống tiếp nhận tập hợp yêu cầu dịch vụ $R = \{r_1, r_2, \dots, r_N\}$ với cardinality $|R| = N$ trong khoảng thời gian quan sát $\Delta t$. Hạ tầng gồm mạng lưới $M$ nút máy chủ $S = \{s_1, s_2, \dots, s_M\}$ với $|S| = M$. 
+
+\noindent Ánh xạ phân bổ tải được định nghĩa bởi hàm $f: R \to S$. Tập nghịch ảnh $f^{-1}(s_j)$ đại diện cho tập hợp các truy vấn được định tuyến tới nút $s_j$. 
+
+\noindent Tải trọng cực đại tại nút chịu áp lực cao nhất được xác định bởi chuẩn $\| \cdot \|_\infty$:
+\[
+L_{\max} = \max_{1 \le j \le M} |f^{-1}(s_j)|
+\]
+
+\noindent Áp dụng Nguyên lý Dirichlet dạng tổng quát, ta có bất đẳng thức cận dưới cho $L_{\max}$:
+\[
+L_{\max} \ge \left\lceil \frac{|R|}{|S|} \right\rceil = \left\lceil \frac{N}{M} \right\rceil
+\]
+\textbf{Ứng dụng Capacity Planning:} Giả thiết mỗi nút máy chủ $s_j$ có ngưỡng xử lý giới hạn $C$. Để hệ thống không bị quá tải ($\exists j: |f^{-1}(s_j)| > C$), điều kiện cần về số lượng máy chủ $M$ là:
+\[
+\left\lceil \frac{N}{M} \right\rceil \le C \implies M \ge \left\lceil \frac{N}{C} \right\rceil
+\]
+
+\subsubsection*{3.2. Mật độ Lưu lượng Giao thông}
+\addcontentsline{toc}{subsubsection}{3.2. Mật độ Lưu lượng Giao thông}
+Xét khoảng thời gian quan sát liên tục $[0, T]$ được rời rạc hóa thành $M$ khoảng thời gian con không giao nhau $\Delta t_k$ sao cho $\bigcup_{k=1}^M \Delta t_k = [0, T]$ và $\Delta t_i \cap \Delta t_j = \emptyset, \forall i \neq j$. Gọi $V = \{v_1, v_2, \dots, v_{|V|}\}$ là tập hợp các phương tiện di chuyển qua nút giao trong $T$.
+
+\begin{itemize}[leftmargin=1.2cm, itemsep=3pt, topsep=2pt]
+    \item Ánh xạ định thời lưu lượng được biểu diễn bởi hàm $h: V \to \{1, 2, \dots, M\}$, trong đó $h(v_i) = k$ nếu phương tiện $v_i$ xuất hiện tại nút giao trong khoảng $\Delta t_k$.
+    \item Mật độ phương tiện tức thời tại phân đoạn $k$ là cardinality của tập nghịch ảnh: $N_v(k) = |h^{-1}(k)|$.
+\end{itemize}
+
+\noindent Theo Nguyên lý Dirichlet, tồn tại ít nhất một chỉ số khoảng thời gian $k^* \in \{1, \dots, M\}$ sao cho số lượng phương tiện $N_v(k^*)$ thỏa mãn:
+\[
+N_v(k^*) = \max_{k} |h^{-1}(k)| \ge \left\lceil \frac{|V|}{M} \right\rceil
+\]
+
+\noindent Đặt $C_{\max}$ là ngưỡng năng lực thông qua cực đại (Capacity Limit) của nút giao. Trạng thái ùn tắc giao thông được định nghĩa toán học khi tồn tại điểm bùng phát mật độ:
+\[
+\exists k^* : \left\lceil \frac{|V|}{M} \right\rceil > C_{\max} \implies N_v(k^*) > C_{\max}
+\]
+
+\noindent Bất đẳng thức này là cơ sở lý thuyết để xây dựng thuật toán điều khiển phản hồi thích ứng (Adaptive Feedback Control), tự động điều chỉnh khoảng thời gian đèn xanh $T_{\text{green}}(k^*)$ tỉ lệ thuận với biến mật độ $N_v(k^*)$ nhằm giải phóng dòng xe tích tụ.
+
+\subsection*{4. Lý thuyết Đồ thị \& Mạng Xã hội}
+\addcontentsline{toc}{subsection}{4. Lý thuyết Đồ thị \& Mạng Xã hội}
+
+\subsubsection*{4.1. Sự tồn tại các đỉnh cùng bậc trong đồ thị}
+\addcontentsline{toc}{subsubsection}{4.1. Sự tồn tại các đỉnh cùng bậc trong đồ thị}
+Xét đơn đồ thị vô hướng $G = (V, E)$ với số đỉnh $|V| = n \ge 2$[cite: 14].
+
+\noindent Bậc của mỗi đỉnh $v \in V$, ký hiệu $d(v)$, đại diện cho số cạnh nối với $v$.
+
+\noindent Do $G$ là đơn đồ thị, giá trị $d(v) \in \{0, 1, 2, \dots, n - 1\}$.
+
+\begin{itemize}[leftmargin=1.2cm, itemsep=3pt, topsep=2pt]
+    \item Trường hợp 1: $G$ chứa đỉnh bậc $0$ (đỉnh cô lập) $\implies$ Không thể có đỉnh bậc $n - 1$[cite: 14]. Tập giá trị khả dĩ của bậc là $D \subseteq \{0, 1, \dots, n - 2\}$ với $|D| \le n - 1$.
+    \item Trường hợp 2: $G$ không chứa đỉnh bậc $0 \implies$ Tập giá trị khả dĩ của bậc là $D \subseteq \{1, 2, \dots, n - 1\}$ với $|D| \le n - 1$.
+\end{itemize}
+
+\noindent Trong cả hai trường hợp, tập giá trị $D$ (lồng) có số lượng $|D| \le n - 1$, trong khi số đỉnh $|V| = n$ (thỏ)[cite: 14]. Theo Nguyên lý Dirichlet, tồn tại hai đỉnh $u, v \in V$ ($u \neq v$) sao cho
+\[
+d(u) = d(v)
+\]
+
+\noindent\textbf{Ý nghĩa:} Trong bất kỳ mạng xã hội nào có $n$ người ($n \ge 2$), luôn tồn tại ít nhất 2 người có cùng chính xác số lượng bạn bè.
+
+\subsubsection*{4.2. Định lý Ramsey cho Mạng Quan hệ $\mathbf{R(3,3)=6}$}
+\addcontentsline{toc}{subsubsection}{4.2. Định lý Ramsey cho Mạng Quan hệ $R(3,3)=6$}
+Xét đồ thị đầy đủ $K_6$ gồm 6 đỉnh, các cạnh được tô bằng 2 màu (Đỏ hoặc Xanh).
+
+\noindent Xét đỉnh tùy ý $v_1 \in V(K_6)$. Số cạnh nối từ $v_1$ tới 5 đỉnh còn lại là $d(v_1) = 5$. Phân chia 5 cạnh này vào 2 tập màu $C_{\text{Đỏ}}$ và $C_{\text{Xanh}}$. Theo Nguyên lý Dirichlet:
+\[
+\max(|C_{\text{Đỏ}}|, |C_{\text{Xanh}}|) \ge \left\lceil \frac{5}{2} \right\rceil = 3
+\]
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.5cm and 1.8cm,
+    vertex/.style={rectangle, draw, inner sep=4pt, font=\bfseries},
+    edge_label/.style={font=\small, fill=white, inner sep=1pt}
+]
+
+    % Các đỉnh
+    \node[vertex] (V) {[ Đỉnh v ]};
+    \node[vertex] (B) [below=of V] {[B]};
+    \node[vertex] (A) [left=of B] {[A]};
+    \node[vertex] (C) [right=of B] {[C]};
+    \node[vertex] (D) [below left=1.8cm and 0.5cm of B] {[D]};
+    \node[vertex] (E) [below right=1.8cm and 0.5cm of B] {[E]};
+
+    % Các cạnh
+    \draw[dashed] (V) -- node[edge_label] {(Đỏ)} (A);
+    \draw[dashed] (V) -- node[edge_label] {(Đỏ)} (B);
+    \draw[dashed] (V) -- node[edge_label] {(Đỏ)} (C);
+    \draw[dashed] (A) -- (B) -- (C);
+    \draw[dashed] (A) -- (D);
+    \draw[dashed] (B) -- (D);
+    \draw[dashed] (B) -- (E);
+    \draw[dashed] (C) -- (E);
+    \draw[dashed] (D) -- (E);
+
+\end{tikzpicture}
+\end{center}
+
+\noindent Giả sử có 3 cạnh màu Đỏ nối $v_1$ với $v_2, v_3, v_4$.
+\begin{itemize}
+    \item Nếu bất kỳ cạnh nào giữa $(v_2,v_3), (v_3,v_4), (v_2,v_4)$ có màu Đỏ $\implies$ Tồn tại tam giác toàn cạnh Đỏ.
+    \item Nếu cả 3 cạnh giữa $(v_2,v_3), (v_3,v_4), (v_2,v_4)$ có màu Xanh $\implies$ Tạo thành tam giác toàn cạnh Xanh.
+\end{itemize}
+
+\noindent\textbf{Ý nghĩa thực tế:} Trong một nhóm 6 người bất kỳ, luôn tồn tại một nhóm 3 người đôi một quen biết nhau, hoặc một nhóm 3 người đôi một không quen biết nhau.
+
+\newpage
+
+\section*{D. MỘT SỐ BÀI TẬP THỰC TẾ}
+\addcontentsline{toc}{section}{D. MỘT SỐ BÀI TẬP THỰC TẾ}
+
+\setcounter{example}{0}
+
+\begin{example}
+Một hệ thống thương mại điện tử dự kiến tiếp nhận 12.500 lượt truy cập trong 1 phút cao điểm. Hệ thống sử dụng 8 máy chủ để xử lý. Mỗi máy chủ sẽ bị nghẽn nếu phải xử lý quá 1.500 lượt truy cập/phút. Hỏi hệ thống có nguy cơ bị nghẽn hay không?
+\end{example}
+
+\begin{proof}[Lời giải]
+\leavevmode
+\begin{itemize}[leftmargin=1.5cm, itemsep=2pt, topsep=2pt]
+    \item \textbf{Thỏ ($N$):} 12.500 lượt truy cập ($N = 12500$).
+    \item \textbf{Lồng ($M$):} 8 máy chủ ($M = 8$).
+\end{itemize}
+
+\vspace{0.2cm}
+\noindent Áp dụng Nguyên lý Dirichlet tổng quát, số lượt truy cập tối thiểu mà máy chủ chịu tải nặng nhất phải xử lý là:
+\[
+\left\lceil \frac{N}{M} \right\rceil = \left\lceil \frac{12500}{8} \right\rceil = 1563 \quad (\text{lượt truy cập})
+\]
+Vì $1563 > 1500$ (vượt quá ngưỡng chịu tải cực đại), nên chắc chắn sẽ có ít nhất 1 máy chủ bị quá tải và gây ra nguy cơ sập hệ thống. Doanh nghiệp bắt buộc phải nâng cấp hạ tầng hoặc bổ sung thêm máy chủ.
+\end{proof}
+
+\vspace{0.5cm}
+
+\begin{example}
+Một đoạn ADN dài 1.000 nucleotide được cấu tạo từ 4 loại ký tự A, T, G, C. Các nhà khoa học phân tích các chuỗi con gồm 4 ký tự liên tiếp (4-mer). Chứng minh rằng trong đoạn ADN này chắc chắn có ít nhất một đoạn 4-mer xuất hiện không dưới 4 lần.
+\end{example}
+
+\begin{proof}[Lời giải]
+\leavevmode
+\begin{itemize}[leftmargin=1.5cm, itemsep=2pt, topsep=2pt]
+    \item \textbf{Tập Lồng ($M$):} Số lượng đoạn 4-mer phân biệt có thể tạo từ 4 ký tự là $4^4 = 256$ loại chuỗi ($M = 256$).
+    \item \textbf{Tập Thỏ ($N$):} Trong đoạn ADN dài 1.000 ký tự, số vị trí bắt đầu của các đoạn 4-mer liên tiếp là:
+    \[
+    N = 1000 - 4 + 1 = 997 \quad (\text{đoạn 4-mer})
+    \]
+\end{itemize}
+
+\noindent Áp dụng Nguyên lý Dirichlet mở rộng:
+\[
+\left\lceil \frac{N}{M} \right\rceil = \left\lceil \frac{997}{256} \right\rceil = \left\lceil 3.89 \right\rceil = 4
+\]
+Vậy trong đoạn ADN trên chắc chắn có ít nhất một đoạn 4-mer lặp lại không dưới 4 lần.
+\end{proof}
+
+\newpage
+
+\begin{example}
+Một bệnh viện có 30 bác sĩ trực cấp cứu. Mỗi tuần có 21 ca trực (3 ca/ngày $\times$ 7 ngày). Mỗi ca trực cần đúng 2 bác sĩ. Bệnh viện đưa ra quy định: ``Không bác sĩ nào được trực quá 2 ca/tuần''. Quy định này có thực thi được không?
+\end{example}
+
+\begin{proof}[Lời giải]
+Tổng số suất trực cần phân công trong tuần là:
+\[
+N = 21 \text{ ca} \times 2 \text{ bác sĩ/ca} = 42 \text{ suất trực (Thỏ)}
+\]
+Số lượng bác sĩ sẵn có: $M = 30$ bác sĩ (Lồng).
+
+\noindent Áp dụng Nguyên lý Dirichlet:
+\[
+\left\lceil \frac{N}{M} \right\rceil = \left\lceil \frac{42}{30} \right\rceil = 2 \text{ ca/bác sĩ}
+\]
+Nếu các ca được chia đều, mỗi bác sĩ trực tối đa 2 ca thì tổng số ca tối đa 30 bác sĩ có thể gánh là $30 \times 2 = 60$ ca (đủ gánh 42 ca). 
+
+\noindent Tuy nhiên, giả sử có 15 bác sĩ vì lý do cá nhân chỉ đăng ký 1 ca/tuần $\implies$ họ gánh 15 ca.
+
+\noindent Số ca còn lại: $42 - 15 = 27$ ca.
+Vậy số bác sĩ còn lại: $30 - 15 = 15$ bác sĩ.
+\end{itemize}
+Áp dụng Dirichlet cho nhóm còn lại:
+\[
+\left\lceil \frac{27}{15} \right\rceil = 2 \text{ ca/bác sĩ}
+\]
+Nếu có thêm bác sĩ bận không trực ca nào, số ca dồn cho nhóm còn lại sẽ vượt quá 2 ca/tuần $\implies$ Quy định sẽ bị phá vỡ nếu phân bổ nhân sự không đồng đều.
+\end{proof}
+
+\vspace{0.5cm}
+
+\begin{example}
+Một mạng xã hội có 20 tài khoản người dùng ($A_1, A_2, \dots, A_{20}$). Hệ thống ghi nhận có tổng cộng 101 kết nối bạn bè song phương. Chứng minh rằng hệ thống này chắc chắn tồn tại ít nhất một ``Bộ ba siêu kết nối'' (nhóm 3 người đôi một là bạn của nhau).
+\end{example}
+
+\begin{proof}[Lời giải]
+Xét đồ thị $G$ có $|V| = 20$ đỉnh và $|E| = 101$ cạnh.
+
+\noindent Theo Định lý Turán (hoặc Mantél), số cạnh tối đa của một đồ thị $n$ đỉnh không chứa tam giác $K_3$ đạt được khi đồ thị là lưỡng phân đầy đủ $K_{\lfloor n/2 \rfloor, \lceil n/2 \rceil}$:
+\[
+E_{\max} = \left\lfloor \frac{n^2}{4} \right\rfloor = \left\lfloor \frac{20^2}{4} \right\rfloor = 100 \text{ cạnh}
+\]
+Giới hạn tối đa để ``an toàn'' (không chứa bộ ba bạn bè) là 100 kết nối (Lồng), nhưng thực tế mạng xã hội có 101 kết nối (Thỏ).
+
+\noindent Vì $101 > 100$, theo Nguyên lý Dirichlet, kết nối thứ 101 bắt buộc phải nối 2 đỉnh thuộc cùng một tập độc lập, khép kín thành ít nhất một tam giác $K_3$. Vậy hệ thống chắc chắn tồn tại ít nhất một bộ ba người đôi một là bạn của nhau.
+\end{proof}
+
+\newpage
+
+\section*{E. KẾT LUẬN}
+\addcontentsline{toc}{section}{E. KẾT LUẬN}
+
+Nguyên lý Dirichlet --- từ một quan sát thực tiễn đơn sơ về những con thỏ và chiếc lồng của nhà toán học Johann Peter Gustav Lejeune Dirichlet --- đã phát triển trở thành một trong những định lý tồn tại mạnh mẽ và mang tính triết lý sâu sắc nhất của Lý thuyết tổ hợp. Giá trị cốt lõi của nguyên lý không nằm ở độ phức tạp của biểu thức đại số, mà kết tinh ở nghệ thuật thiết lập ánh xạ ``Thỏ -- Chuồng'', cho phép chuyển hóa các bài toán thực tế đa chiều thành những cấu trúc phân loại toán học mạch lạc. 
+
+\noindent Bằng phương pháp chứng minh phản chứng chặt chẽ, Nguyên lý Dirichlet đóng vai trò như một công cụ suy luận logic tối thượng giúp các nhà khoa học khẳng định chắc chắn sự xuất hiện của các hiện tượng đụng độ mã băm trong an ninh mạng, xác định ngưỡng chịu tải cực tiểu của máy chủ, dự báo điểm bùng phát ùn tắc giao thông hay phát hiện các mẫu lặp bắt buộc trong chuỗi di truyền DNA mà không tốn chi phí duyệt tìm trực tiếp. Sự giao thoa giữa một quy luật tự nhiên đơn giản và các bài toán tối ưu hóa hiện đại đã minh chứng rằng, tư duy toán học lý thuyết không hề tách rời thực tiễn, mà chính là nền tảng kiến tạo nên các giải pháp công nghệ và quản trị hạ tầng hiệu quả trong kỷ nguyên số.
+
+\newpage
+
+\section*{F. TÀI LIỆU THAM KHẢO}
+\addcontentsline{toc}{section}{F. TÀI LIỆU THAM KHẢO}
+
+\begin{enumerate}[leftmargin=1.5cm]
+    \item Nguyễn Hữu Điển (1999), \textit{Phương pháp Dirichlet và ứng dụng}, NXB Khoa học và Kỹ thuật Hà Nội.
+    \item Kenneth H. Rosen (2019), \textit{Discrete Mathematics and Its Applications}, 8th Edition, McGraw-Hill Education.
+    \item Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. (2009), \textit{Introduction to Algorithms}, 3rd Edition, MIT Press.
+    \item Dar, Z. S. (2018), \textit{The Pigeonhole Principle and It's Applications}, Undergraduate Seminar, Jacobs University Bremen, ResearchGate.
+\end{enumerate}
+
+\end{document}
