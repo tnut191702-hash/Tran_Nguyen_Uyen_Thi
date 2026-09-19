@@ -71,16 +71,16 @@ Dirichlet_Project/
 
 ---
 
-## 📊 3. Bảng Theo Dõi Tiến Độ Theo Ngày
+## 📊 3. Bảng Theo Dõi Tiến Độ Đến Ngày 19/9/2026
 
-| Ngày | Nội Dung Công Việc | Đầu Ra Dự Kiến | Trạng Thái |
-| :---: | :--- | :--- | :---: |
-| **N1 - N2** | Tạo khung LaTeX + Viết Phần Mở đầu | File `01_gioi_thieu.tex` | Hoàn thành |
-| **N3 - N4** | Viết 5 dạng phát biểu Cơ sở lý thuyết | File `02_co_so_ly_thuyet.tex` | Hoàn thành |
-| **N5 - N7** | Viết 4 Lĩnh vực Ứng dụng thực tế | File `03_ung_dung_thuc_tien.tex` | Hoàn thành |
-| **N8 - N10** | Giải 4 Bài toán minh họa thực tế | File `04_bai_toan_minh_hoa.tex` | Hoàn thành |
-| **N11 - N12** | Viết Kết luận & Chuẩn hóa BibTeX | File `05_ket_luan.tex` + `references.bib` | Hoàn thành |
-| **N13 - N14** | Chỉnh LaTeX, vẽ hình & Export PDF chính thức | File `Bao_Cao_Dirichlet_UyenThi.pdf` (~21 trang) | Hoàn thành |
+| Ngày | Nội Dung Công Việc  | Trạng Thái |
+| :---: | :--- | :---: |
+| **N1 - N2** | Tạo khung LaTeX + Viết Phần Mở đầu | Hoàn thành |
+| **N3 - N4** | Viết 5 dạng phát biểu Cơ sở lý thuyết | Hoàn thành |
+| **N5 - N7** | Viết 4 Lĩnh vực Ứng dụng thực tế  | Hoàn thành |
+| **N8 - N10** | Giải 4 Bài toán minh họa thực tế  | Hoàn thành |
+| **N11 - N12** | Viết Kết luận & Chuẩn hóa BibTeX | Hoàn thành |
+| **N13 - N14** | Chỉnh LaTeX, vẽ hình & Export PDF chính thức | Hoàn thành |
 
 ---
 
